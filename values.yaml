@@ -4,7 +4,15 @@
 
 replicaCount: 1
 
+unwanted: 
+    image
+
+attribNotPresent:
+    subAttrib1: ""
+    subAttrib2: ""
+    subAttrib3: ""
 image:
+  unwantedAttrib: ""
   repository: nginx
   pullPolicy: IfNotPresent
 
