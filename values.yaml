@@ -11,6 +11,7 @@ attribNotPresent:
     subAttrib1: ""
     subAttrib2: ""
     subAttrib3: ""
+    subAttrib4: ""
 image:
   unwantedAttrib: ""
   repository: nginx
