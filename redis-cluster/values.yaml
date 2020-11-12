@@ -1,0 +1,92 @@
+## Cluster settings
+cluster:
+  enabled: true
+  slaveCount: 1
+
+# Redis Master parameters
+master:
+  command: "/run.sh"
+  configmap:
+  ## Redis additional command line flags
+  extraFlags: []
+  ## Comma-separated list of Redis commands to disable
+  disableCommands:
+  - FLUSHDB
+  - FLUSHALL
+
+  ## Redis Master additional pod labels and annotations
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  podLabels: {}
+  podAnnotations: {}
+
+  ## Redis Master resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 256m
+    limits: 
+      memory: 2Gi
+      cpu: 512m
+  livenessProbe:
+    enabled: true
+    successThreshold: 1
+    failureThreshold: 5
+  readinessProbe:
+    enabled: true
+    successThreshold: 1
+    failureThreshold: 5
+
+  ## Redis Master Service properties
+  service:
+    ##  Redis Master Service type
+    type: ClusterIP
+    port: 6379
+    annotations: {}
+    labels: {}
+
+  ## Persistent Volume
+  persistence:
+    enabled: true
+    path: /data
+    subPath: ""
+    storageClass: "standard"
+    accessModes:
+    - ReadWriteOnce
+    size: 10Gi
+    ## Persistent Volume selectors
+    ## https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
+    ## Currently handled by namespace
+    # matchLabels: {}
+    # matchExpressions: {}
+
+## Redis Slave properties
+slave:
+  service:
+    type: ClusterIP
+    port: 6379
+    annotations: {}
+    labels: {}
+  ## Persistent Volume
+  persistence:
+    enabled: false
+    path: /data
+    subPath: ""
+    matchLabels: {
+      release: redis-cache,
+      role: master
+    }
+## Prometheus Exporter / Metrics
+##
+metrics:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/redis-exporter
+    tag: 1.5.3-debian-10-r14
+    pullPolicy: IfNotPresent
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9121"
+  service:
+    type: ClusterIP

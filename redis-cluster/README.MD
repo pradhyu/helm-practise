@@ -19,8 +19,27 @@ https://github.com/bitnami/charts/blob/master/bitnami/redis/templates/redis-slav
 I have no name!@rds-redis-slave-0:/$ redis-cli  -h localhost -a secretpassword ping
 Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
 PONG
+Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
+localhost:6379> GET X
+(nil)
+(5.02s)
+localhost:6379> GET X
+(nil)
+(17.86s)
+localhost:6379> 
+# grr it's taking a long time
 ```
 
+# latency test 
+```
+https://redis.io/topics/latency
+I have no name!@rds-redis-slave-0:/$ redis-cli  -h localhost -a secretpassword --latency
+Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
+min: 0, max: 3, avg: 0.38 (61 samples)
+```
+
+
+# notes
 Single node - The basic solution where you run single process running Redis. It is not scalable and not highly available.
 Redis Sentinel - Deployment that consist of multiple nodes where one is elected as master and the rest are slaves. It adds high availability since in case of master failure one of the slaves will be automatically promoted to master. It is not scalable since the master node is the only node that can write data. You can configure the clients to direct read requests to the slaves, which will take some of the load from the master. However, in this case slaves might return stale data since they replicate the master asynchronously.
 
@@ -39,3 +58,13 @@ Redis Cluster
 Supports multiple databases	Supports only one database. Better if you have a big dataset
 Redis	
 Single write point (single master)	Multiple write points (multiple masters)
+
+```
+
+
+# Suggested solution  that worked to make slave able to connect to the master
+```
+helm uninstall my-release
+helm install my-release bitnami/redis -f values.yaml
+# values.yaml file created from https://github.com/bitnami/charts/issues/2510
+```
